@@ -334,6 +334,173 @@
             height: .1em;
             width: .34em;
         }
+        main {
+            max-width: 1080px;
+            width: 100%;
+            flex: 1;
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        /* SOCIALS */
+        .socials {
+            max-width: 420px;
+            width: 100%;
+        }
+        .socials-title {
+            color: #7a7a74;
+            font-size: 11px;
+            letter-spacing: .18em;
+            margin-bottom: 18px;
+            text-transform: uppercase;
+        }
+        .social-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            list-style: none;
+        }
+        .social-list li {
+            align-items: baseline;
+            display: flex;
+            font-size: 13px;
+            gap: 10px;
+            justify-content: center;
+        }
+        .social-label {
+            color: #6e6e6a;
+            letter-spacing: .06em;
+            min-width: 56px;
+            text-align: right;
+        }
+        .social-list a {
+            border-bottom: 1px dashed #4a4a46;
+            color: #e9e9e3;
+            padding-bottom: 1px;
+            text-decoration: none;
+            transition: color .25s ease, border-color .25s ease;
+        }
+        .social-list a:hover {
+            border-color: #fff;
+            color: #fff;
+        }
+        /* MODAL */
+        .dmca-modal-overlay {
+            align-items: center;
+            background: rgba(0, 0, 0, .72);
+            display: flex;
+            inset: 0;
+            justify-content: center;
+            opacity: 0;
+            padding: 20px;
+            pointer-events: none;
+            position: fixed;
+            transition: opacity .2s ease;
+            z-index: 30;
+        }
+        .dmca-modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .dmca-modal-panel {
+            background: #0d0d0d;
+            border: 1px solid #292929;
+            border-radius: 7px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .55);
+            max-width: 620px;
+            padding: 28px;
+            position: relative;
+            transform: translateY(8px) scale(.98);
+            transition: transform .2s ease;
+            width: 100%;
+        }
+        .dmca-modal-overlay.open .dmca-modal-panel {
+            transform: translateY(0) scale(1);
+        }
+        .modal-close {
+            background: transparent;
+            border: 0;
+            color: #5c5c58;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-size: 25px;
+            line-height: 1;
+            padding: 3px 6px;
+            position: absolute;
+            right: 12px;
+            top: 10px;
+        }
+        .modal-close:hover {
+            color: #fff;
+        }
+        .modal-title {
+            color: #f4f4ee;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: .14em;
+            margin-bottom: 22px;
+            padding-right: 30px;
+            text-transform: uppercase;
+        }
+        .dmca-message {
+            color: #7a7a74;
+            font-size: 11px;
+            line-height: 1.7;
+            margin: 0;
+        }
+        .dmca-message a {
+            color: #e9e9e3;
+            text-decoration: none;
+        }
+        .dmca-message a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        /* BOTTOM BUTTONS */
+        .dmca-wrap {
+            display: flex;
+            justify-content: center;
+            padding: 36px 20px 44px;
+            width: 100%;
+        }
+        .bottom-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+        .dmca {
+            background: transparent;
+            border: 1px solid #262626;
+            border-radius: 4px;
+            color: #5c5c58;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            letter-spacing: .14em;
+            padding: 9px 18px;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: color .25s ease, border-color .25s ease, background .25s ease;
+        }
+        .dmca:hover {
+            border-color: #3d3d3d;
+            color: #c9c9c2;
+            background: #0d0d0d;
+        }
+        .status-link {
+            display: inline-block;
+        }
+        /* RESPONSIVE */
+        @media (max-width: 480px) {
+            .bottom-buttons {
+                gap: 8px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -415,6 +582,73 @@
                 kryp<span class="mini-cross"></span>
             </div>
         </header>
+        <main>
+            <!-- SOCIALS -->
+            <div class="socials">
+                <div class="socials-title">
+                    our socials
+                </div>
+                <ul class="social-list">
+                    <li>
+                        <span class="social-label">
+                            discord
+                        </span>
+                        <a
+                            href="https://discord.gg/fG53F8PApW"
+                            target="_blank"
+                            rel="noopener">
+                            discord.gg/fG53F8PApW
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!-- DMCA MODAL -->
+            <div
+                class="dmca-modal-overlay"
+                id="dmca-modal"
+                aria-hidden="true">
+                <div
+                    class="dmca-modal-panel"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="dmca-modal-title">
+                    <button
+                        class="modal-close"
+                        type="button"
+                        data-close="dmca-modal"
+                        aria-label="Close">
+                        &times;
+                    </button>
+                    <div
+                        class="modal-title"
+                        id="dmca-modal-title">
+                        dmca
+                    </div>
+                    <p class="dmca-message">
+                        email us at
+                        <a href="mailto:kryptbusiness@tutanota.de">
+                            kryptbusiness@tutanota.de
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </main>
+        <!-- DMCA + STATUS -->
+        <div class="dmca-wrap">
+            <div class="bottom-buttons">
+                <button
+                    class="dmca"
+                    id="dmca-button"
+                    type="button">
+                    DMCA
+                </button>
+                <a
+                    href="https://trojaninfect.github.io/kryptclient.cc/status"
+                    class="dmca status-link">
+                    STATUS
+                </a>
+            </div>
+        </div>
     </div>
     <script>
         /* BACKGROUND */
@@ -746,6 +980,63 @@
                 it.style.display = 'none';
             }, 3150);
         }
+        /* DMCA MODAL */
+        const dmcaButton =
+            document.getElementById(
+                'dmca-button'
+            );
+        const dmcaModal =
+            document.getElementById(
+                'dmca-modal'
+            );
+        function openModal(modal) {
+            modal.classList.add('open');
+            modal.setAttribute(
+                'aria-hidden',
+                'false'
+            );
+        }
+        function closeModal(modal) {
+            modal.classList.remove('open');
+            modal.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+        }
+        dmcaButton.addEventListener(
+            'click',
+            () => openModal(dmcaModal)
+        );
+        document
+            .querySelectorAll('[data-close]')
+            .forEach(button => {
+                button.addEventListener(
+                    'click',
+                    () => {
+                        closeModal(
+                            document.getElementById(
+                                button.dataset.close
+                            )
+                        );
+                    }
+                );
+            });
+        dmcaModal.addEventListener(
+            'click',
+            event => {
+                if (event.target === dmcaModal) {
+                    closeModal(dmcaModal);
+                }
+            }
+        );
+        document.addEventListener(
+            'keydown',
+            event => {
+                if (event.key === 'Escape') {
+                    closeModal(dmcaModal);
+                }
+            }
+        );
         /* GATE — the click also unlocks autoplay */
         const gt =
             document.getElementById('gate');
