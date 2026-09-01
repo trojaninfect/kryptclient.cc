@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>krypt — products</title>
+    <meta property="og:title" content="krypt — products">
+    <meta property="og:description" content="cheat provider">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://trojaninfect.github.io/kryptclient.cc/products">
+    <meta name="theme-color" content="#060606">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet"
+    >
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html,
+        body {
+            background: #060606;
+            color: #e9e9e3;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+        body {
+            position: relative;
+            min-height: 100dvh;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        canvas {
+            z-index: 0;
+            position: fixed;
+            display: block;
+            inset: 0;
+        }
+        /* INTRO */
+        #intro {
+            align-items: center;
+            background: #060606;
+            display: flex;
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            justify-content: center;
+        }
+        #intro.fading {
+            opacity: 0;
+            transition: opacity .5s ease .5s;
+            pointer-events: none;
+        }
+        .wordmark {
+            color: #fff;
+            font-weight: 700;
+            display: inline-flex;
+            text-transform: lowercase;
+            align-items: flex-end;
+            font-size: clamp(28px, 11vmin, 58px);
+            letter-spacing: -.01em;
+        }
+        .letter {
+            transition: opacity .3s ease, width .3s ease, margin .3s ease;
+            display: inline-block;
+            opacity: 0;
+            animation: letter-in .55s steps(1, end) forwards;
+            filter: blur(8px);
+        }
+        .letter.gone {
+            width: 0;
+            margin: 0;
+            overflow: hidden;
+            opacity: 0 !important;
+        }
+        .cross {
+            display: inline-block;
+            height: 1em;
+            position: relative;
+            width: .34em;
+            margin-left: .01em;
+            opacity: 0;
+            transform: scale(1.5);
+            filter: blur(10px);
+            animation: cross-in .9s steps(1, end) forwards;
+        }
+        .cross::before,
+        .cross::after {
+            content: "";
+            background: #fff;
+            border-radius: 1px;
+            position: absolute;
+        }
+        .cross::before {
+            width: .09em;
+            top: 0;
+            left: 50%;
+            height: 1em;
+            transform: translateX(-50%);
+        }
+        .cross::after {
+            top: .22em;
+            height: .09em;
+            left: 0;
+            width: .34em;
+        }
+        .cross.charge {
+            transform: scale(.8) rotate(-2deg);
+            transition: transform .22s ease-in;
+        }
+        .cross.portal {
+            opacity: 0;
+            transform: scale(60) rotate(3deg);
+            filter: blur(0) brightness(2.6);
+            transition:
+                transform 1.05s cubic-bezier(.6, 0, .9, .3),
+                opacity .85s ease-in .4s,
+                filter 1.05s ease-in;
+        }
+        #flash {
+            background: #fff;
+            pointer-events: none;
+            position: fixed;
+            inset: 0;
+            z-index: 19;
+            opacity: 0;
+        }
+        #flash.pulse {
+            opacity: .4;
+            transition: opacity .22s ease-out;
+        }
+        #flash.pulse-out {
+            opacity: 0;
+            transition: opacity .35s ease-in;
+        }
+        @keyframes letter-in {
+            0% { opacity:0; filter:blur(8px); }
+            12% { filter:blur(0); opacity:1; }
+            20% { opacity:.12; }
+            28% { opacity:1; }
+            38% { opacity:.25; }
+            46% { opacity:1; }
+            100% { filter:blur(0); opacity:1; }
+        }
+        @keyframes cross-in {
+            0% { transform:scale(1.5); filter:blur(12px); opacity:0; }
+            10% { opacity:1; filter:blur(0); }
+            18% { opacity:.1; }
+            26% { transform:scale(1.15); opacity:1; }
+            34% { opacity:.15; }
+            42% { transform:scale(1); opacity:1; }
+            100% { transform:scale(1); filter:blur(0); opacity:1; }
+        }
+        /* SITE */
+        #site {
+            transform: scale(.97);
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            min-height: 100dvh;
+            opacity: 0;
+            position: relative;
+            z-index: 2;
+        }
+        #site.reveal {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity .9s ease-out, transform .9s ease-out;
+        }
+        header {
+            padding: 40px 20px 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .brand {
+            align-items: flex-end;
+            color: #fff;
+            display: inline-flex;
+            font-size: clamp(30px, 6vw, 42px);
+            font-weight: 700;
+            letter-spacing: -.01em;
+            text-transform: lowercase;
+            text-decoration: none;
+        }
+        .brand .mini-cross {
+            height: 1em;
+            margin-left: .02em;
+            position: relative;
+            width: .34em;
+        }
+        .brand .mini-cross::before,
+        .brand .mini-cross::after {
+            background: #fff;
+            border-radius: 1px;
+            content: "";
+            position: absolute;
+        }
+        .brand .mini-cross::before {
+            top: 0;
+            left: 50%;
+            height: 1em;
+            width: .1em;
+            transform: translateX(-50%);
+        }
+        .brand .mini-cross::after {
+            top: .22em;
+            left: 0;
+            height: .1em;
+            width: .34em;
+        }
+        main {
+            max-width: 1080px;
+            width: 100%;
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            padding: 55px 20px 70px;
+            text-align: center;
+        }
+        .page-title {
+            color: #f4f4ee;
+            font-size: clamp(25px, 4vw, 34px);
+            font-weight: 700;
+            letter-spacing: -.01em;
+            margin-bottom: 10px;
+            text-transform: lowercase;
+        }
+        .page-subtitle {
+            color: #5c5c58;
+            font-size: 11px;
+            letter-spacing: .05em;
+            margin-bottom: 42px;
+        }
+        /* GALLERY */
+        .gallery {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(3, 1fr);
+            width: 100%;
+        }
+        .card {
+            background: #0d0d0d;
+            border: 1px solid #232323;
+            border-radius: 8px;
+            cursor: zoom-in;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 0;
+            text-align: left;
+            transition: transform .3s ease, border-color .3s ease, background .3s ease;
+        }
+        .card:hover,
+        .card:focus-visible {
+            background: #101010;
+            border-color: #3d3d3d;
+            outline: none;
+            transform: translateY(-4px);
+        }
+        .shot {
+            aspect-ratio: 16 / 10;
+            background: #080808;
+            border-bottom: 1px solid #1c1c1c;
+            display: block;
+            object-fit: cover;
+            transition: opacity .3s ease;
+            width: 100%;
+        }
+        .card:hover .shot {
+            opacity: .92;
+        }
+        .card-body {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            justify-content: space-between;
+            padding: 15px 16px 16px;
+        }
+        .card-name {
+            color: #d7d7d1;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: .08em;
+            text-transform: lowercase;
+        }
+        .card-tag {
+            color: #5c5c58;
+            flex-shrink: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+        .gallery-note {
+            color: #4f4f4b;
+            font-size: 9.5px;
+            letter-spacing: .04em;
+            margin-top: 22px;
+        }
+        /* LIGHTBOX */
+        .lightbox {
+            align-items: center;
+            background: rgba(0, 0, 0, .86);
+            cursor: zoom-out;
+            display: flex;
+            inset: 0;
+            justify-content: center;
+            opacity: 0;
+            padding: 28px;
+            pointer-events: none;
+            position: fixed;
+            transition: opacity .22s ease;
+            z-index: 30;
+        }
+        .lightbox.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .lightbox img {
+            border: 1px solid #292929;
+            border-radius: 6px;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, .6);
+            max-height: 86vh;
+            max-width: 100%;
+            object-fit: contain;
+            transform: scale(.98);
+            transition: transform .22s ease;
+        }
+        .lightbox.open img {
+            transform: scale(1);
+        }
+        .lightbox-close {
+            background: transparent;
+            border: 0;
+            color: #7a7a74;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-size: 28px;
+            line-height: 1;
+            padding: 4px 8px;
+            position: absolute;
+            right: 16px;
+            top: 12px;
+        }
+        .lightbox-close:hover {
+            color: #fff;
+        }
+        /* BOTTOM */
+        .bottom {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding: 10px 20px 44px;
+            width: 100%;
+        }
+        .bottom-button {
+            background: transparent;
+            border: 1px solid #262626;
+            border-radius: 4px;
+            color: #5c5c58;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            letter-spacing: .14em;
+            padding: 9px 18px;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: color .25s ease, border-color .25s ease, background .25s ease;
+        }
+        .bottom-button:hover {
+            border-color: #3d3d3d;
+            color: #c9c9c2;
+            background: #0d0d0d;
+        }
+        /* RESPONSIVE */
+        @media (max-width: 860px) {
+            .gallery {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 560px) {
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+            .bottom {
+                gap: 8px;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .card:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg"></canvas>
+    <div id="flash"></div>
+    <!-- INTRO -->
+    <div id="intro">
+        <div class="wordmark" id="intro-wordmark">
+            <span class="letter" style="animation-delay:0.00s">k</span>
+            <span class="letter" style="animation-delay:0.11s">r</span>
+            <span class="letter" style="animation-delay:0.22s">y</span>
+            <span class="letter" style="animation-delay:0.33s">p</span>
+            <span
+                class="cross"
+                id="intro-cross"
+                style="animation-delay:1.05s">
+            </span>
+        </div>
+    </div>
+    <!-- SITE -->
+    <div id="site">
+        <header>
+            <a href="index.html" class="brand">
+                kryp<span class="mini-cross"></span>
+            </a>
+        </header>
+        <main>
+            <h1 class="page-title">
+                products
+            </h1>
+            <div class="page-subtitle">
+                click a product to view it full size
+            </div>
+            <div class="gallery" id="gallery"></div>
+            <div class="gallery-note">
+                Products and features are subject to change.
+            </div>
+        </main>
+        <div class="bottom">
+            <a href="index.html" class="bottom-button">
+                home
+            </a>
+            <a href="status.html" class="bottom-button">
+                status
+            </a>
+        </div>
+    </div>
+    <!-- LIGHTBOX -->
+    <div class="lightbox" id="lightbox" aria-hidden="true">
+        <button
+            class="lightbox-close"
+            id="lightbox-close"
+            type="button"
+            aria-label="Close">
+            &times;
+        </button>
+        <img id="lightbox-img" alt="">
+    </div>
+    <script>
+        /* ==========================================================
+           PRODUCTS — edit this list by hand, then commit.
+           file = image sitting next to this page in the repo.
+           ========================================================== */
+        const PRODUCTS = [
+            {
+                name: 'blooket',
+                file: 'blooket.png',
+                tag: 'invite only'
+            },
+            {
+                name: 'gimkit',
+                file: 'gimkit.png',
+                tag: 'invite only'
+            },
+            {
+                name: 'krunker',
+                file: 'krunker.png',
+                tag: 'invite only'
+            }
+        ];
+        /* ========================================================== */
+
+        /* BACKGROUND */
+        const cv = document.getElementById('bg');
+        const gx = cv.getContext('2d');
+        const rd = window.matchMedia(
+            '(prefers-reduced-motion: reduce)'
+        ).matches;
+        let W, H, DP;
+        function rz() {
+            DP = Math.min(
+                window.devicePixelRatio || 1,
+                2
+            );
+            W = window.innerWidth;
+            H = window.innerHeight;
+            cv.width = W * DP;
+            cv.height = H * DP;
+            cv.style.width = W + 'px';
+            cv.style.height = H + 'px';
+            gx.setTransform(
+                DP,
+                0,
+                0,
+                DP,
+                0,
+                0
+            );
+            iD();
+        }
+        const AG = .24;
+        const CN = 160;
+        let dp = [];
+        function nD(rc) {
+            return {
+                x:
+                    Math.random() *
+                    (W + H * Math.tan(AG)) -
+                    H * Math.tan(AG),
+                y:
+                    rc
+                        ? -20 - Math.random() * H
+                        : Math.random() * H,
+                len:
+                    10 + Math.random() * 18,
+                speed:
+                    5.5 + Math.random() * 6,
+                alpha:
+                    .08 + Math.random() * .22,
+                width:
+                    Math.random() < .15
+                        ? 1.4
+                        : .8
+            };
+        }
+        function iD() {
+            dp = [];
+            for (let i = 0; i < CN; i++) {
+                dp.push(nD(false));
+            }
+        }
+        rz();
+        let lw = 0;
+        let lh = 0;
+        function hR() {
+            const nw = window.innerWidth;
+            const nh = window.innerHeight;
+            if (
+                Math.abs(nw - lw) < 2 &&
+                Math.abs(nh - lh) < 80
+            ) {
+                return;
+            }
+            lw = nw;
+            lh = nh;
+            rz();
+        }
+        window.addEventListener(
+            'resize',
+            hR
+        );
+        function dw() {
+            gx.fillStyle = '#060606';
+            gx.fillRect(
+                0,
+                0,
+                W,
+                H
+            );
+            gx.lineCap = 'round';
+            for (const d of dp) {
+                const ddx =
+                    Math.sin(AG) * d.len;
+                const ddy =
+                    Math.cos(AG) * d.len;
+                gx.beginPath();
+                gx.strokeStyle =
+                    `rgba(200,200,196,${d.alpha})`;
+                gx.lineWidth = d.width;
+                gx.moveTo(
+                    d.x,
+                    d.y
+                );
+                gx.lineTo(
+                    d.x - ddx,
+                    d.y - ddy
+                );
+                gx.stroke();
+                d.x +=
+                    Math.sin(AG) *
+                    d.speed;
+                d.y +=
+                    Math.cos(AG) *
+                    d.speed;
+                if (
+                    d.y > H + 20 ||
+                    d.x > W + 40
+                ) {
+                    Object.assign(
+                        d,
+                        nD(true)
+                    );
+                }
+            }
+            if (!rd) {
+                requestAnimationFrame(dw);
+            }
+        }
+        if (rd) {
+            gx.fillStyle = '#070707';
+            gx.fillRect(
+                0,
+                0,
+                W,
+                H
+            );
+        } else {
+            dw();
+        }
+        /* INTRO */
+        const it =
+            document.getElementById('intro');
+        const iw =
+            document.getElementById(
+                'intro-wordmark'
+            );
+        const ic =
+            document.getElementById(
+                'intro-cross'
+            );
+        const fl =
+            document.getElementById('flash');
+        const st =
+            document.getElementById('site');
+        function rI() {
+            if (rd) {
+                it.style.display = 'none';
+                st.classList.add(
+                    'reveal'
+                );
+                return;
+            }
+            setTimeout(() => {
+                iw
+                    .querySelectorAll('.letter')
+                    .forEach(l =>
+                        l.classList.add(
+                            'gone'
+                        )
+                    );
+            }, 1350);
+            setTimeout(() => {
+                ic.classList.add(
+                    'charge'
+                );
+            }, 1600);
+            setTimeout(() => {
+                ic.classList.remove(
+                    'charge'
+                );
+                ic.classList.add(
+                    'portal'
+                );
+            }, 1820);
+            setTimeout(() => {
+                fl.classList.add(
+                    'pulse'
+                );
+            }, 2350);
+            setTimeout(() => {
+                fl.classList.remove(
+                    'pulse'
+                );
+                fl.classList.add(
+                    'pulse-out'
+                );
+                st.classList.add(
+                    'reveal'
+                );
+            }, 2500);
+            setTimeout(() => {
+                it.classList.add(
+                    'fading'
+                );
+            }, 2550);
+            setTimeout(() => {
+                it.style.display = 'none';
+            }, 3150);
+        }
+        rI();
+        /* GALLERY */
+        const gallery =
+            document.getElementById('gallery');
+        const lb =
+            document.getElementById('lightbox');
+        const lbImg =
+            document.getElementById(
+                'lightbox-img'
+            );
+        const lbClose =
+            document.getElementById(
+                'lightbox-close'
+            );
+        function openLb(src, alt) {
+            lbImg.src = src;
+            lbImg.alt = alt;
+            lb.classList.add('open');
+            lb.setAttribute(
+                'aria-hidden',
+                'false'
+            );
+        }
+        function closeLb() {
+            lb.classList.remove('open');
+            lb.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+        }
+        function buildGallery() {
+            PRODUCTS.forEach(p => {
+                const card =
+                    document.createElement(
+                        'button'
+                    );
+                card.className = 'card';
+                card.type = 'button';
+                const img =
+                    document.createElement('img');
+                img.className = 'shot';
+                img.src = p.file;
+                img.alt = p.name;
+                img.loading = 'lazy';
+                const body =
+                    document.createElement('div');
+                body.className = 'card-body';
+                const name =
+                    document.createElement('span');
+                name.className = 'card-name';
+                name.textContent = p.name;
+                const tag =
+                    document.createElement('span');
+                tag.className = 'card-tag';
+                tag.textContent = p.tag || '';
+                body.appendChild(name);
+                body.appendChild(tag);
+                card.appendChild(img);
+                card.appendChild(body);
+                card.addEventListener(
+                    'click',
+                    () => openLb(p.file, p.name)
+                );
+                gallery.appendChild(card);
+            });
+        }
+        buildGallery();
+        lb.addEventListener('click', event => {
+            if (
+                event.target === lb ||
+                event.target === lbImg ||
+                event.target === lbClose
+            ) {
+                closeLb();
+            }
+        });
+        lbClose.addEventListener(
+            'click',
+            closeLb
+        );
+        document.addEventListener(
+            'keydown',
+            event => {
+                if (event.key === 'Escape') {
+                    closeLb();
+                }
+            }
+        );
+    </script>
+</body>
+</html>
