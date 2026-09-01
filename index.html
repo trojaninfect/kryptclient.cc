@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>krypt</title>
     <meta property="og:title" content="krypt">
-    <meta property="og:description" content="the no.1 vr cheat provider">
+    <meta property="og:description" content="cheat provider">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://resurrect.wtf/">
     <meta property="og:image" content="preview.png">
     <meta name="theme-color" content="#0a0a0a">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="krypt">
-    <meta name="twitter:description" content="the no.1 vr cheat provider">
+    <meta name="twitter:description" content="cheat provider">
     <meta name="twitter:image" content="preview.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -74,7 +74,12 @@
             display: inline-block;
             opacity: 0;
             animation: letter-in .55s steps(1, end) forwards;
+            animation-play-state: paused;
             filter: blur(8px);
+        }
+        #intro.go .letter,
+        #intro.go .cross {
+            animation-play-state: running;
         }
         .letter.gone {
             width: 0;
@@ -92,6 +97,7 @@
             transform: scale(1.5);
             filter: blur(10px);
             animation: cross-in .9s steps(1, end) forwards;
+            animation-play-state: paused;
         }
         .cross::before,
         .cross::after {
@@ -160,6 +166,117 @@
             42% { transform:scale(1); opacity:1; }
             100% { transform:scale(1); filter:blur(0); opacity:1; }
         }
+        /* GATE */
+        #gate {
+            align-items: center;
+            background: #060606;
+            cursor: pointer;
+            display: flex;
+            inset: 0;
+            justify-content: center;
+            position: fixed;
+            user-select: none;
+            z-index: 25;
+        }
+        #gate.gone {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .45s ease;
+        }
+        .gate-text {
+            animation: gate-breathe 2.4s ease-in-out infinite;
+            color: #8a8a84;
+            font-size: clamp(13px, 3.2vmin, 17px);
+            letter-spacing: .14em;
+            padding: 0 20px;
+            text-align: center;
+            transition: color .3s ease;
+        }
+        #gate:hover .gate-text {
+            color: #e9e9e3;
+        }
+        @keyframes gate-breathe {
+            0%, 100% { opacity: .45; }
+            50% { opacity: 1; }
+        }
+        /* VOLUME */
+        .vol {
+            align-items: center;
+            background: rgba(10, 10, 10, .55);
+            backdrop-filter: blur(6px);
+            border: 1px solid #1c1c1c;
+            border-radius: 6px;
+            display: flex;
+            left: 18px;
+            opacity: 0;
+            padding: 6px;
+            pointer-events: none;
+            position: fixed;
+            top: 18px;
+            transition: opacity .7s ease .2s, border-color .25s ease;
+            z-index: 10;
+        }
+        .vol.reveal {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .vol:hover,
+        .vol:focus-within {
+            border-color: #303030;
+        }
+        .vol-btn {
+            background: transparent;
+            border: 0;
+            color: #6e6e6a;
+            cursor: pointer;
+            display: flex;
+            padding: 2px;
+            transition: color .25s ease;
+        }
+        .vol:hover .vol-btn,
+        .vol-btn:focus-visible {
+            color: #c9c9c2;
+        }
+        .vol.muted .vol-btn {
+            color: #4f4f4b;
+        }
+        .vol-range {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #2a2a2a;
+            border-radius: 2px;
+            cursor: pointer;
+            height: 3px;
+            margin: 0;
+            opacity: 0;
+            outline: none;
+            transition: width .28s ease, opacity .28s ease, margin .28s ease;
+            width: 0;
+        }
+        .vol:hover .vol-range,
+        .vol:focus-within .vol-range,
+        .vol.open .vol-range {
+            margin: 0 4px 0 9px;
+            opacity: 1;
+            width: 84px;
+        }
+        .vol-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e9e9e3;
+            border-radius: 50%;
+            cursor: pointer;
+            height: 9px;
+            width: 9px;
+        }
+        .vol-range::-moz-range-thumb {
+            background: #e9e9e3;
+            border: 0;
+            border-radius: 50%;
+            cursor: pointer;
+            height: 9px;
+            width: 9px;
+        }
         /* SITE */
         #site {
             transform: scale(.97);
@@ -223,11 +340,60 @@
     <canvas id="bg"></canvas>
     <audio
         id="bg-audio"
-        src="godwillgiveuswhatweneed.mp3"
-        preload="auto"
-        loop>
+        preload="auto">
     </audio>
     <div id="flash"></div>
+    <!-- VOLUME -->
+    <div class="vol" id="vol">
+        <button
+            class="vol-btn"
+            id="vol-btn"
+            type="button"
+            aria-label="Mute">
+            <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                aria-hidden="true">
+                <path
+                    d="M4 9h3.2L12 5.2v13.6L7.2 15H4z"
+                    fill="currentColor"/>
+                <g
+                    id="vol-waves"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round">
+                    <path d="M15.6 9.2a4 4 0 0 1 0 5.6"/>
+                    <path d="M18.2 6.9a7.4 7.4 0 0 1 0 10.2"/>
+                </g>
+                <g
+                    id="vol-x"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    style="display:none">
+                    <path d="M16 9.5l5 5"/>
+                    <path d="M21 9.5l-5 5"/>
+                </g>
+            </svg>
+        </button>
+        <input
+            class="vol-range"
+            id="vol-range"
+            type="range"
+            min="0"
+            max="100"
+            value="50"
+            aria-label="Volume">
+    </div>
+    <!-- GATE -->
+    <div id="gate">
+        <div class="gate-text">
+            &#11832; click to enter... &#11832;
+        </div>
+    </div>
     <!-- INTRO -->
     <div id="intro">
         <div class="wordmark" id="intro-wordmark">
@@ -389,40 +555,120 @@
             dw();
         }
         /* AUDIO */
+        /*
+            Track files live in the repo root, next to index.html.
+            Relative paths keep this working on any GitHub Pages URL
+            (username.github.io/repo/ or a custom domain).
+        */
+        const TRACKS = [
+            'Iced Out Castles-Sickboyrari.mp3',
+            'SURGEON DOGMA-Yabujin.mp3'
+        ].map(encodeURIComponent);
         const au =
             document.getElementById('bg-audio');
         au.volume = .5;
+        let ti = Math.floor(
+            Math.random() * TRACKS.length
+        );
+        let fails = 0;
+        function ld(play) {
+            au.src = TRACKS[ti];
+            if (play) {
+                tp();
+            }
+        }
+        function nx() {
+            ti = (ti + 1) % TRACKS.length;
+            ld(true);
+        }
         function tp() {
-            au.play().catch(() => {});
+            au.play()
+                .then(() => {
+                    fails = 0;
+                })
+                .catch(() => {});
         }
-        tp();
-        function uA() {
-            tp();
-            window.removeEventListener(
-                'click',
-                uA
+        au.addEventListener('ended', nx);
+        au.addEventListener('error', () => {
+            /* skip a missing/bad file, but don't loop forever */
+            fails++;
+            if (fails < TRACKS.length) {
+                nx();
+            }
+        });
+        ld(false);
+        /* VOLUME CONTROL */
+        const vw =
+            document.getElementById('vol');
+        const vb =
+            document.getElementById(
+                'vol-btn'
             );
-            window.removeEventListener(
-                'touchstart',
-                uA
+        const vr =
+            document.getElementById(
+                'vol-range'
             );
-            window.removeEventListener(
-                'keydown',
-                uA
+        const vWave =
+            document.getElementById(
+                'vol-waves'
+            );
+        const vX =
+            document.getElementById('vol-x');
+        /* no hover on touch: tap the icon to open the slider */
+        const coarse = window.matchMedia(
+            '(hover: none)'
+        ).matches;
+        let lastVol = .5;
+        function paint() {
+            const m = au.muted || au.volume === 0;
+            vw.classList.toggle('muted', m);
+            vWave.style.display =
+                m ? 'none' : '';
+            vX.style.display =
+                m ? '' : 'none';
+            vb.setAttribute(
+                'aria-label',
+                m ? 'Unmute' : 'Mute'
             );
         }
-        window.addEventListener(
+        vr.addEventListener('input', () => {
+            au.volume = vr.value / 100;
+            au.muted = au.volume === 0;
+            if (au.volume > 0) {
+                lastVol = au.volume;
+            }
+            paint();
+        });
+        vb.addEventListener('click', () => {
+            if (
+                coarse &&
+                !vw.classList.contains('open')
+            ) {
+                vw.classList.add('open');
+                return;
+            }
+            if (au.muted || au.volume === 0) {
+                au.muted = false;
+                au.volume =
+                    lastVol > 0 ? lastVol : .5;
+            } else {
+                lastVol = au.volume;
+                au.muted = true;
+            }
+            vr.value = au.muted
+                ? 0
+                : Math.round(au.volume * 100);
+            paint();
+        });
+        document.addEventListener(
             'click',
-            uA
+            event => {
+                if (!vw.contains(event.target)) {
+                    vw.classList.remove('open');
+                }
+            }
         );
-        window.addEventListener(
-            'touchstart',
-            uA
-        );
-        window.addEventListener(
-            'keydown',
-            uA
-        );
+        paint();
         /* INTRO */
         const it =
             document.getElementById('intro');
@@ -444,8 +690,12 @@
                 st.classList.add(
                     'reveal'
                 );
+                vw.classList.add(
+                    'reveal'
+                );
                 return;
             }
+            it.classList.add('go');
             setTimeout(() => {
                 iw
                     .querySelectorAll('.letter')
@@ -483,6 +733,9 @@
                 st.classList.add(
                     'reveal'
                 );
+                vw.classList.add(
+                    'reveal'
+                );
             }, 2500);
             setTimeout(() => {
                 it.classList.add(
@@ -493,7 +746,30 @@
                 it.style.display = 'none';
             }, 3150);
         }
-        rI();
+        /* GATE — the click also unlocks autoplay */
+        const gt =
+            document.getElementById('gate');
+        let entered = false;
+        function enter() {
+            if (entered) {
+                return;
+            }
+            entered = true;
+            tp();
+            gt.classList.add('gone');
+            setTimeout(() => {
+                gt.style.display = 'none';
+            }, 500);
+            rI();
+        }
+        gt.addEventListener(
+            'click',
+            enter
+        );
+        window.addEventListener(
+            'keydown',
+            enter
+        );
     </script>
 </body>
 </html>
