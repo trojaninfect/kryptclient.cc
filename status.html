@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>krypt — status</title>
+    <meta property="og:title" content="krypt — status">
+    <meta property="og:description" content="krypt service status">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://trojaninfect.github.io/kryptclient.cc/status">
+    <meta name="theme-color" content="#060606">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet"
+    >
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html,
+        body {
+            background: #060606;
+            color: #e9e9e3;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+        body {
+            position: relative;
+            min-height: 100dvh;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        canvas {
+            z-index: 0;
+            position: fixed;
+            display: block;
+            inset: 0;
+        }
+        /* INTRO */
+        #intro {
+            align-items: center;
+            background: #060606;
+            display: flex;
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            justify-content: center;
+        }
+        #intro.fading {
+            opacity: 0;
+            transition: opacity .5s ease .5s;
+            pointer-events: none;
+        }
+        .wordmark {
+            color: #fff;
+            font-weight: 700;
+            display: inline-flex;
+            text-transform: lowercase;
+            align-items: flex-end;
+            font-size: clamp(28px, 11vmin, 58px);
+            letter-spacing: -.01em;
+        }
+        .letter {
+            transition: opacity .3s ease, width .3s ease, margin .3s ease;
+            display: inline-block;
+            opacity: 0;
+            animation: letter-in .55s steps(1, end) forwards;
+            filter: blur(8px);
+        }
+        .letter.gone {
+            width: 0;
+            margin: 0;
+            overflow: hidden;
+            opacity: 0 !important;
+        }
+        .cross {
+            display: inline-block;
+            height: 1em;
+            position: relative;
+            width: .34em;
+            margin-left: .01em;
+            opacity: 0;
+            transform: scale(1.5);
+            filter: blur(10px);
+            animation: cross-in .9s steps(1, end) forwards;
+        }
+        .cross::before,
+        .cross::after {
+            content: "";
+            background: #fff;
+            border-radius: 1px;
+            position: absolute;
+        }
+        .cross::before {
+            width: .09em;
+            top: 0;
+            left: 50%;
+            height: 1em;
+            transform: translateX(-50%);
+        }
+        .cross::after {
+            top: .22em;
+            height: .09em;
+            left: 0;
+            width: .34em;
+        }
+        .cross.charge {
+            transform: scale(.8) rotate(-2deg);
+            transition: transform .22s ease-in;
+        }
+        .cross.portal {
+            opacity: 0;
+            transform: scale(60) rotate(3deg);
+            filter: blur(0) brightness(2.6);
+            transition:
+                transform 1.05s cubic-bezier(.6, 0, .9, .3),
+                opacity .85s ease-in .4s,
+                filter 1.05s ease-in;
+        }
+        #flash {
+            background: #fff;
+            pointer-events: none;
+            position: fixed;
+            inset: 0;
+            z-index: 19;
+            opacity: 0;
+        }
+        #flash.pulse {
+            opacity: .4;
+            transition: opacity .22s ease-out;
+        }
+        #flash.pulse-out {
+            opacity: 0;
+            transition: opacity .35s ease-in;
+        }
+        @keyframes letter-in {
+            0% { opacity:0; filter:blur(8px); }
+            12% { filter:blur(0); opacity:1; }
+            20% { opacity:.12; }
+            28% { opacity:1; }
+            38% { opacity:.25; }
+            46% { opacity:1; }
+            100% { filter:blur(0); opacity:1; }
+        }
+        @keyframes cross-in {
+            0% { transform:scale(1.5); filter:blur(12px); opacity:0; }
+            10% { opacity:1; filter:blur(0); }
+            18% { opacity:.1; }
+            26% { transform:scale(1.15); opacity:1; }
+            34% { opacity:.15; }
+            42% { transform:scale(1); opacity:1; }
+            100% { transform:scale(1); filter:blur(0); opacity:1; }
+        }
+        /* SITE */
+        #site {
+            transform: scale(.97);
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            min-height: 100dvh;
+            opacity: 0;
+            position: relative;
+            z-index: 2;
+        }
+        #site.reveal {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity .9s ease-out, transform .9s ease-out;
+        }
+        header {
+            padding: 40px 20px 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .brand {
+            align-items: flex-end;
+            color: #fff;
+            display: inline-flex;
+            font-size: clamp(30px, 6vw, 42px);
+            font-weight: 700;
+            letter-spacing: -.01em;
+            text-transform: lowercase;
+            text-decoration: none;
+        }
+        .brand .mini-cross {
+            height: 1em;
+            margin-left: .02em;
+            position: relative;
+            width: .34em;
+        }
+        .brand .mini-cross::before,
+        .brand .mini-cross::after {
+            background: #fff;
+            border-radius: 1px;
+            content: "";
+            position: absolute;
+        }
+        .brand .mini-cross::before {
+            top: 0;
+            left: 50%;
+            height: 1em;
+            width: .1em;
+            transform: translateX(-50%);
+        }
+        .brand .mini-cross::after {
+            top: .22em;
+            left: 0;
+            height: .1em;
+            width: .34em;
+        }
+        main {
+            max-width: 850px;
+            width: 100%;
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            padding: 55px 20px 70px;
+            text-align: center;
+        }
+        .page-title {
+            color: #f4f4ee;
+            font-size: clamp(25px, 4vw, 34px);
+            font-weight: 700;
+            letter-spacing: -.01em;
+            margin-bottom: 10px;
+            text-transform: lowercase;
+        }
+        .page-subtitle {
+            color: #5c5c58;
+            font-size: 11px;
+            letter-spacing: .05em;
+            margin-bottom: 42px;
+        }
+        /* STATUS CARDS */
+        .status-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .status-card {
+            align-items: center;
+            background: #0d0d0d;
+            border: 1px solid #232323;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            min-height: 72px;
+            padding: 18px 20px;
+            text-align: left;
+            transition: background .25s ease, border-color .25s ease, transform .25s ease;
+        }
+        .status-card:hover {
+            background: #101010;
+            border-color: #3d3d3d;
+            transform: translateY(-2px);
+        }
+        .status-name {
+            color: #d7d7d1;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: .06em;
+            word-break: break-word;
+        }
+        .status-right {
+            align-items: center;
+            display: flex;
+            flex-shrink: 0;
+            gap: 10px;
+            margin-left: 20px;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .status-dot.working {
+            background: #35d07f;
+            box-shadow: 0 0 8px rgba(53, 208, 127, .35);
+        }
+        .status-dot.updating {
+            background: #f0a23a;
+            box-shadow: 0 0 8px rgba(240, 162, 58, .35);
+        }
+        .status-dot.broken {
+            background: #ff4d4d;
+            box-shadow: 0 0 8px rgba(255, 77, 77, .35);
+        }
+        .status-text {
+            font-size: 10px;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+        .status-text.working {
+            color: #35d07f;
+        }
+        .status-text.updating {
+            color: #f0a23a;
+        }
+        .status-text.broken {
+            color: #ff4d4d;
+        }
+        .updated {
+            color: #464642;
+            font-size: 9.5px;
+            letter-spacing: .05em;
+            margin-top: 22px;
+        }
+        /* LEGEND */
+        .legend {
+            border-top: 1px solid #202020;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 42px;
+            padding-top: 25px;
+            width: 100%;
+        }
+        .legend-item {
+            align-items: center;
+            color: #575752;
+            display: flex;
+            font-size: 9px;
+            gap: 7px;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+        .legend-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+        .legend-dot.working {
+            background: #35d07f;
+        }
+        .legend-dot.updating {
+            background: #f0a23a;
+        }
+        .legend-dot.broken {
+            background: #ff4d4d;
+        }
+        /* BOTTOM */
+        .bottom {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding: 10px 20px 44px;
+            width: 100%;
+        }
+        .bottom-button {
+            background: transparent;
+            border: 1px solid #262626;
+            border-radius: 4px;
+            color: #5c5c58;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            letter-spacing: .14em;
+            padding: 9px 18px;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: color .25s ease, border-color .25s ease, background .25s ease;
+        }
+        .bottom-button:hover {
+            border-color: #3d3d3d;
+            color: #c9c9c2;
+            background: #0d0d0d;
+        }
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            .status-card {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 14px;
+            }
+            .status-right {
+                margin-left: 0;
+            }
+            .page-subtitle {
+                line-height: 1.6;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .status-card:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg"></canvas>
+    <div id="flash"></div>
+    <!-- INTRO -->
+    <div id="intro">
+        <div class="wordmark" id="intro-wordmark">
+            <span class="letter" style="animation-delay:0.00s">k</span>
+            <span class="letter" style="animation-delay:0.11s">r</span>
+            <span class="letter" style="animation-delay:0.22s">y</span>
+            <span class="letter" style="animation-delay:0.33s">p</span>
+            <span
+                class="cross"
+                id="intro-cross"
+                style="animation-delay:1.05s">
+            </span>
+        </div>
+    </div>
+    <!-- SITE -->
+    <div id="site">
+        <header>
+            <a href="index.html" class="brand">
+                kryp<span class="mini-cross"></span>
+            </a>
+        </header>
+        <main>
+            <h1 class="page-title">
+                service status
+            </h1>
+            <div class="page-subtitle">
+                current status of krypt services
+            </div>
+            <div
+                class="status-container"
+                id="status-container">
+            </div>
+            <div class="updated" id="updated"></div>
+            <div class="legend">
+                <div class="legend-item">
+                    <span class="legend-dot working"></span>
+                    working
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot updating"></span>
+                    updating
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot broken"></span>
+                    broken
+                </div>
+            </div>
+        </main>
+        <div class="bottom">
+            <a href="index.html" class="bottom-button">
+                home
+            </a>
+        </div>
+    </div>
+    <script>
+        /* ==========================================================
+           STATUSES — edit this list by hand, then commit.
+           status must be one of: 'working' | 'updating' | 'broken'
+           ========================================================== */
+        const STATUSES = [
+            { name: 'krunker invite only', status: 'updating' },
+            { name: 'blooket invite only', status: 'updating' },
+            { name: 'gimkit invite only', status: 'updating' }
+        ];
+        /* Shown under the cards. Set to '' to hide the line. */
+        const LAST_UPDATED = '';
+        /* ========================================================== */
+
+        /* BACKGROUND */
+        const cv = document.getElementById('bg');
+        const gx = cv.getContext('2d');
+        const rd = window.matchMedia(
+            '(prefers-reduced-motion: reduce)'
+        ).matches;
+        let W, H, DP;
+        function rz() {
+            DP = Math.min(
+                window.devicePixelRatio || 1,
+                2
+            );
+            W = window.innerWidth;
+            H = window.innerHeight;
+            cv.width = W * DP;
+            cv.height = H * DP;
+            cv.style.width = W + 'px';
+            cv.style.height = H + 'px';
+            gx.setTransform(
+                DP,
+                0,
+                0,
+                DP,
+                0,
+                0
+            );
+            iD();
+        }
+        const AG = .24;
+        const CN = 160;
+        let dp = [];
+        function nD(rc) {
+            return {
+                x:
+                    Math.random() *
+                    (W + H * Math.tan(AG)) -
+                    H * Math.tan(AG),
+                y:
+                    rc
+                        ? -20 - Math.random() * H
+                        : Math.random() * H,
+                len:
+                    10 + Math.random() * 18,
+                speed:
+                    5.5 + Math.random() * 6,
+                alpha:
+                    .08 + Math.random() * .22,
+                width:
+                    Math.random() < .15
+                        ? 1.4
+                        : .8
+            };
+        }
+        function iD() {
+            dp = [];
+            for (let i = 0; i < CN; i++) {
+                dp.push(nD(false));
+            }
+        }
+        rz();
+        let lw = 0;
+        let lh = 0;
+        function hR() {
+            const nw = window.innerWidth;
+            const nh = window.innerHeight;
+            if (
+                Math.abs(nw - lw) < 2 &&
+                Math.abs(nh - lh) < 80
+            ) {
+                return;
+            }
+            lw = nw;
+            lh = nh;
+            rz();
+        }
+        window.addEventListener(
+            'resize',
+            hR
+        );
+        function dw() {
+            gx.fillStyle = '#060606';
+            gx.fillRect(
+                0,
+                0,
+                W,
+                H
+            );
+            gx.lineCap = 'round';
+            for (const d of dp) {
+                const ddx =
+                    Math.sin(AG) * d.len;
+                const ddy =
+                    Math.cos(AG) * d.len;
+                gx.beginPath();
+                gx.strokeStyle =
+                    `rgba(200,200,196,${d.alpha})`;
+                gx.lineWidth = d.width;
+                gx.moveTo(
+                    d.x,
+                    d.y
+                );
+                gx.lineTo(
+                    d.x - ddx,
+                    d.y - ddy
+                );
+                gx.stroke();
+                d.x +=
+                    Math.sin(AG) *
+                    d.speed;
+                d.y +=
+                    Math.cos(AG) *
+                    d.speed;
+                if (
+                    d.y > H + 20 ||
+                    d.x > W + 40
+                ) {
+                    Object.assign(
+                        d,
+                        nD(true)
+                    );
+                }
+            }
+            if (!rd) {
+                requestAnimationFrame(dw);
+            }
+        }
+        if (rd) {
+            gx.fillStyle = '#070707';
+            gx.fillRect(
+                0,
+                0,
+                W,
+                H
+            );
+        } else {
+            dw();
+        }
+        /* INTRO */
+        const it =
+            document.getElementById('intro');
+        const iw =
+            document.getElementById(
+                'intro-wordmark'
+            );
+        const ic =
+            document.getElementById(
+                'intro-cross'
+            );
+        const fl =
+            document.getElementById('flash');
+        const st =
+            document.getElementById('site');
+        function rI() {
+            if (rd) {
+                it.style.display = 'none';
+                st.classList.add(
+                    'reveal'
+                );
+                return;
+            }
+            setTimeout(() => {
+                iw
+                    .querySelectorAll('.letter')
+                    .forEach(l =>
+                        l.classList.add(
+                            'gone'
+                        )
+                    );
+            }, 1350);
+            setTimeout(() => {
+                ic.classList.add(
+                    'charge'
+                );
+            }, 1600);
+            setTimeout(() => {
+                ic.classList.remove(
+                    'charge'
+                );
+                ic.classList.add(
+                    'portal'
+                );
+            }, 1820);
+            setTimeout(() => {
+                fl.classList.add(
+                    'pulse'
+                );
+            }, 2350);
+            setTimeout(() => {
+                fl.classList.remove(
+                    'pulse'
+                );
+                fl.classList.add(
+                    'pulse-out'
+                );
+                st.classList.add(
+                    'reveal'
+                );
+            }, 2500);
+            setTimeout(() => {
+                it.classList.add(
+                    'fading'
+                );
+            }, 2550);
+            setTimeout(() => {
+                it.style.display = 'none';
+            }, 3150);
+        }
+        rI();
+        /* STATUS RENDER */
+        const statusContainer =
+            document.getElementById(
+                'status-container'
+            );
+        const updated =
+            document.getElementById(
+                'updated'
+            );
+        function getStatusClass(status) {
+            const value = String(status)
+                .trim()
+                .toLowerCase();
+            if (value === 'working') {
+                return 'working';
+            }
+            if (value === 'updating') {
+                return 'updating';
+            }
+            return 'broken';
+        }
+        function createStatusCard(
+            name,
+            status
+        ) {
+            const statusClass =
+                getStatusClass(status);
+            const card =
+                document.createElement('div');
+            card.className = 'status-card';
+            const nameElement =
+                document.createElement('div');
+            nameElement.className =
+                'status-name';
+            nameElement.textContent = name;
+            const right =
+                document.createElement('div');
+            right.className = 'status-right';
+            const dot =
+                document.createElement('span');
+            dot.className =
+                `status-dot ${statusClass}`;
+            const statusText =
+                document.createElement('span');
+            statusText.className =
+                `status-text ${statusClass}`;
+            statusText.textContent =
+                statusClass;
+            right.appendChild(dot);
+            right.appendChild(statusText);
+            card.appendChild(nameElement);
+            card.appendChild(right);
+            return card;
+        }
+        function renderStatuses() {
+            statusContainer.innerHTML = '';
+            STATUSES.forEach(item => {
+                statusContainer.appendChild(
+                    createStatusCard(
+                        item.name,
+                        item.status
+                    )
+                );
+            });
+            updated.textContent =
+                LAST_UPDATED
+                    ? 'last updated ' +
+                      LAST_UPDATED
+                    : '';
+        }
+        renderStatuses();
+    </script>
+</body>
+</html>
